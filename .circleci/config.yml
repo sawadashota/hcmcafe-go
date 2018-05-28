@@ -1,0 +1,58 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.10.2
+    working_directory: /go/src/github.com/sawadashota/hcmcafe
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          working_directory: server
+          command: go get -v -t -d ./...
+      - run:
+          name: Test
+          working_directory: server
+          command: go test -v ./...
+      - persist_to_workspace:
+          root: /go/
+          paths:
+            - .
+
+  #
+  # https://cloud.google.com/sdk/docs/#deb
+  #
+  deploy:
+    docker:
+      - image: google/cloud-sdk:198.0.0
+    working_directory: /root/go/
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Create gcloud service key file
+          working_directory: /root/go/src/github.com/sawadashota/hcmcafe/server
+          command: echo $GCLOUD_SERVICE_KEY > gcloud-service-key.json
+      - run:
+          name: Activate gcloud project
+          working_directory: /root/go/src/github.com/sawadashota/hcmcafe/server
+          command: gcloud auth activate-service-account --key-file=gcloud-service-key.json
+      - run:
+          name: Set gcloud project
+          working_directory: /root/go/src/github.com/sawadashota/hcmcafe/server
+          command: gcloud config set project $GCLOUD_PROJECT
+      - deploy:
+          working_directory: /root/go/src/github.com/sawadashota/hcmcafe/server
+          command: gcloud app deploy --project=hcm-cafe --quiet
+
+workflows:
+  version: 2
+  default:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master

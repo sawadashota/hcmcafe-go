@@ -21,5 +21,5 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintln(w, "Hello, Gopher Network!")
+	fmt.Fprintln(w, "Hello, from CircleCI!")
 }
