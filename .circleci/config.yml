@@ -43,7 +43,7 @@ jobs:
           command: gcloud config set project $GCLOUD_PROJECT
       - deploy:
           working_directory: /root/go/src/github.com/sawadashota/hcmcafe/server
-          command: gcloud app deploy --project=hcm-cafe --quiet
+          command: gcloud app deploy ./app/app.yaml --project=hcm-cafe --quiet
 
 workflows:
   version: 2
