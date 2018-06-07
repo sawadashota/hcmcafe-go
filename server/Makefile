@@ -6,3 +6,6 @@ deploy:
 
 browse:
 	gcloud app browse --project=hcm-cafe
+
+test:
+	go test -v ./...

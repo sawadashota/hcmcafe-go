@@ -11,7 +11,10 @@ import (
 func init() {
 	s := rpc.NewServer()
 	s.RegisterCodec(json2.NewCodec(), "application/json")
+
 	s.RegisterService(new(handler.Cafe), "Cafe")
+	s.RegisterService(new(handler.HealthCheck), "HealthCheck")
+
 	http.Handle("/rpc", s)
 }
 
