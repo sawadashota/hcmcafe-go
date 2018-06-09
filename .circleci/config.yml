@@ -24,7 +24,7 @@ jobs:
   #
   deploy:
     docker:
-      - image: google/cloud-sdk:198.0.0
+      - image: google/cloud-sdk:203.0.0
     working_directory: /root/go/
     steps:
       - attach_workspace:
