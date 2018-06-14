@@ -2,12 +2,6 @@ package domain
 
 import "time"
 
-type timestamps struct {
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	DeletedAt time.Time `json:"deleted_at"`
-}
-
 // TODO: エリアとかもいれる
 type Cafe struct {
 	Name          string        `json:"name"`
@@ -48,7 +42,7 @@ func NewCafe(name string, lowPrice, highPrice int) *Cafe {
 			High: highPrice,
 		},
 		BusinessHours: BusinessHours{
-			Open: time.Now(),
+			Open:  time.Now(),
 			Close: time.Now().Add(3 * time.Hour),
 		},
 	}
@@ -60,9 +54,4 @@ func NewCafe(name string, lowPrice, highPrice int) *Cafe {
 	c.UpdatedAt = time.Now()
 
 	return c
-}
-
-// isNil judge timestamp is initialized
-func isNil(timestamp *time.Time) bool {
-	return timestamp.Unix() == time.Time{}.Unix()
 }
