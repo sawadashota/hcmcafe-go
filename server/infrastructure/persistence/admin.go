@@ -19,5 +19,9 @@ func NewAdminRepository() *AdminRepository {
 //}
 
 func (ar *AdminRepository) Save(r *http.Request, a *entity.Admin) error {
+	if err := a.Validate(); err != nil {
+		return err
+	}
+
 	return put(r, ar.kind, a)
 }

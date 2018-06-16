@@ -2,14 +2,14 @@ package entity
 
 import "github.com/sawadashota/hcmcafe/server/lib/uuid"
 
-type Id struct {
-	Id string `json:"Id"`
+type id struct {
+	Id string `json:"id"`
 }
 
-func NewId(id string) *Id {
-	return &Id{id}
+func NewId(idStr string) *id {
+	return &id{idStr}
 }
 
-func GenerateId() *Id {
-	return &Id{uuid.Generate()}
+func GenerateId() *id {
+	return &id{uuid.Generate()}
 }

@@ -3,6 +3,7 @@ package entity
 import (
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -60,4 +61,28 @@ func CreateAdmin(firstName, lastName, email, rawPassword, bio string) *Admin {
 		Token:    *GenerateToken(),
 		Entity:   *GenerateEntity(),
 	}
+}
+
+func (a *Admin) Validate() error {
+	if a.Id == "" {
+		return fmt.Errorf("ID should be present\n")
+	}
+
+	if strings.Trim(a.Name.String(), " ") == "" {
+		return fmt.Errorf("Name should be present\n")
+	}
+
+	if a.Email == "" {
+		return fmt.Errorf("Email should be present\n")
+	}
+
+	if a.Password == "" {
+		return fmt.Errorf("Password should be present\n")
+	}
+
+	if a.Role == "" {
+		return fmt.Errorf("Role should be present\n")
+	}
+
+	return nil
 }
