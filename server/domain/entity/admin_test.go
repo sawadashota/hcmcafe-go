@@ -9,7 +9,9 @@ func TestAdmin(t *testing.T) {
 	now := time.Now()
 	emptyTime := time.Time{}
 
-	admin := NewAdmin("澤田",
+	admin := NewAdmin(
+		"aaa",
+		"澤田",
 		"翔太",
 		"sawada@exmaple.com",
 		"123345678",

@@ -1,6 +1,6 @@
 package entity
 
-import "github.com/google/uuid"
+import "github.com/sawadashota/hcmcafe/server/lib/uuid"
 
 type Token struct {
 	Token string `json:"Token"`
@@ -11,17 +11,13 @@ func NewToken(token string) *Token {
 }
 
 func GenerateToken() *Token {
-	return &Token{newUuid()}
+	return &Token{uuid.Generate()}
 }
 
 func (t *Token) Refresh() {
-	t.Token = newUuid()
+	t.Token = uuid.Generate()
 }
 
 func (t *Token) Flush() {
 	t.Token = ""
-}
-
-func newUuid() string {
-	return uuid.New().String()
 }

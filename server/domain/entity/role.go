@@ -12,7 +12,7 @@ type Role string
 
 // NewRole return WatcherRole
 func NewRole() *Role {
-	var r Role = WatcherRole
+	var r Role = MasterRole
 	return &r
 }
 

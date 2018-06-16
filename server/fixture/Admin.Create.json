@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "Admin.Create",
+  "params": {
+    "first_name": "澤田",
+    "last_name": "翔太",
+    "email": "example@example.com",
+    "password": "password",
+    "bio": "しょうちゃんです！"
+  }
+}

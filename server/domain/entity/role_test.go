@@ -5,8 +5,8 @@ import "testing"
 func TestNewRole(t *testing.T) {
 	r := NewRole()
 
-	if r.String() != WatcherRole {
-		t.Errorf("Expect %s, actual %s", WatcherRole, r)
+	if r.String() != MasterRole {
+		t.Errorf("Expect %s, actual %s", MasterRole, r)
 	}
 }
 

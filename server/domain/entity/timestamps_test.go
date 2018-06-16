@@ -28,7 +28,7 @@ func TestTimestamp(t *testing.T) {
 		t.Errorf("DeletedAt should be empty")
 	}
 
-	ts.StampTime()
+	ts.UpdateStamp()
 
 	if ts.UpdatedAt.Before(now) {
 		t.Errorf("UpdateAt should be future campare with first value")

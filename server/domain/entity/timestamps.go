@@ -29,7 +29,7 @@ func CreateTimestamp() *timestamps {
 	}
 }
 
-func (t *timestamps) StampTime() {
+func (t *timestamps) UpdateStamp() {
 	t.UpdatedAt = time.Now()
 }
 
