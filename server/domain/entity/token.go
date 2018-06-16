@@ -3,11 +3,11 @@ package entity
 import "github.com/sawadashota/hcmcafe/server/lib/uuid"
 
 type Token struct {
-	Token string `json:"Token"`
+	Token string `json:"token,omitempty" datastore:"token"`
 }
 
-func NewToken(token string) *Token {
-	return &Token{token}
+func NewToken(tokenStr string) *Token {
+	return &Token{tokenStr}
 }
 
 func GenerateToken() *Token {

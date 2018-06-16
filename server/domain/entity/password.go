@@ -3,7 +3,7 @@ package entity
 import "golang.org/x/crypto/bcrypt"
 
 type password struct {
-	Password string `json:"password"`
+	Password string `json:"-" datastore:"password"`
 }
 
 func NewPassword(encryptedPassword string) *password {

@@ -2,20 +2,20 @@ package entity
 
 import "time"
 
-type Entity struct {
+type entity struct {
 	id
 	timestamps
 }
 
-func NewEntity(id string, createdAt, updatedAt, deletedAt time.Time) *Entity {
-	return &Entity{
+func NewEntity(id string, createdAt, updatedAt, deletedAt time.Time) *entity {
+	return &entity{
 		id:         *NewId(id),
 		timestamps: *NewTimestamp(createdAt, updatedAt, deletedAt),
 	}
 }
 
-func GenerateEntity() *Entity {
-	return &Entity{
+func GenerateEntity() *entity {
+	return &entity{
 		id:         *GenerateId(),
 		timestamps: *CreateTimestamp(),
 	}

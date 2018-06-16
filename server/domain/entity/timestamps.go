@@ -3,9 +3,9 @@ package entity
 import "time"
 
 type timestamps struct {
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	DeletedAt time.Time `json:"deleted_at"`
+	CreatedAt time.Time `json:"created_at" datastore:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" datastore:"updated_at"`
+	DeletedAt time.Time `json:"-" datastore:"deleted_at"`
 }
 
 // isNil judge timestamp is initialized

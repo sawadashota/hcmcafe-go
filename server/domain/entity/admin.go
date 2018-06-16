@@ -8,11 +8,11 @@ import (
 )
 
 type Admin struct {
-	Entity
-	Name  Name   `json:"name"`
-	Email string `json:"email"`
-	Role  Role   `json:"role"`
-	Bio   string `json:"bio"`
+	entity
+	Name  Name   `json:"name" datastore:"name"`
+	Email string `json:"email" datastore:"email"`
+	Role  Role   `json:"role" datastore:"role"`
+	Bio   string `json:"bio" datastore:"bio,noindex"`
 	password
 	Token
 }
@@ -22,8 +22,8 @@ type Avator struct {
 }
 
 type Name struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+	FirstName string `json:"first_name" datastore:"first_name"`
+	LastName  string `json:"last_name" datastore:"last_name"`
 }
 
 func NewName(firstName, lastName string) *Name {
@@ -46,7 +46,7 @@ func NewAdmin(id, firstName, lastName, email, encryptedPassword, bio, token stri
 		Role:     *NewRole(),
 		Bio:      bio,
 		Token:    *NewToken(token),
-		Entity:   *NewEntity(id, createdAt, updatedAt, deletedAt),
+		entity:   *NewEntity(id, createdAt, updatedAt, deletedAt),
 	}
 }
 
@@ -59,7 +59,7 @@ func CreateAdmin(firstName, lastName, email, rawPassword, bio string) *Admin {
 		Role:     *NewRole(),
 		Bio:      bio,
 		Token:    *GenerateToken(),
-		Entity:   *GenerateEntity(),
+		entity:   *GenerateEntity(),
 	}
 }
 
@@ -85,4 +85,9 @@ func (a *Admin) Validate() error {
 	}
 
 	return nil
+}
+
+// HideCredentials hide important data
+func (a *Admin) HideCredentials() {
+	a.Token.Token = ""
 }
