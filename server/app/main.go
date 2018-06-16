@@ -2,10 +2,11 @@ package main
 
 import (
 	"net/http"
-	"google.golang.org/appengine"
-	"github.com/gorilla/rpc/v2/json2"
+
 	"github.com/gorilla/rpc/v2"
+	"github.com/gorilla/rpc/v2/json2"
 	"github.com/sawadashota/hcmcafe/server/handler"
+	"google.golang.org/appengine"
 )
 
 func init() {
@@ -21,4 +22,3 @@ func init() {
 func main() {
 	appengine.Main()
 }
-

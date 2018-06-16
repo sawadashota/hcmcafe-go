@@ -1,11 +1,12 @@
 package repository
 
 import (
-	"google.golang.org/appengine"
 	"net/http"
+
+	"github.com/sawadashota/hcmcafe/server/domain/entity"
+	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
-	"github.com/sawadashota/hcmcafe/server/domain"
 )
 
 const (
@@ -13,7 +14,7 @@ const (
 )
 
 // StoreCafe cafe to database
-func  StoreCafe(c *domain.Cafe, r *http.Request) error {
+func StoreCafe(c *entity.Cafe, r *http.Request) error {
 	ctx := appengine.NewContext(r)
 
 	_, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, TypeCafe, nil), c)

@@ -2,8 +2,9 @@ package handler
 
 import (
 	"net/http"
+
+	"github.com/sawadashota/hcmcafe/server/domain/entity"
 	"github.com/sawadashota/hcmcafe/server/repository"
-	"github.com/sawadashota/hcmcafe/server/domain"
 )
 
 type Cafe struct{}
@@ -53,7 +54,7 @@ func (c *Cafe) Detail(r *http.Request, args *CafeEmptyArgs, reply *CafeDetailRep
 
 // StoreCafe cafe data
 func (c *Cafe) Store(r *http.Request, args *CafeStoreRequest, reply *CafeStoreResponse) error {
-	cafe := domain.NewCafe(args.Name, 10000, 30000)
+	cafe := entity.NewCafe(args.Name, 10000, 30000)
 	if err := repository.StoreCafe(cafe, r); err == nil {
 		reply.Status = http.StatusOK
 	} else {
