@@ -18,6 +18,7 @@ type adminRepository interface {
 	//Get(r *http.Request) ([]*entity.Admin, error)
 	Find(r *http.Request, id string) (*entity.Admin, error)
 	FindByEmail(r *http.Request, email string) (*entity.Admin, error)
+	FindByToken(r *http.Request, token string) (*entity.Admin, error)
 }
 
 type cafeRepository interface {

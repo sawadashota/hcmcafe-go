@@ -33,6 +33,15 @@ func (ar *AdminRepository) FindByEmail(r *http.Request, email string) (*entity.A
 	return a, nil
 }
 
+func (ar *AdminRepository) FindByToken(r *http.Request, token string) (*entity.Admin, error) {
+	a := new(entity.Admin)
+
+	if err := first(r, ar.kind, "token", token, a); err != nil {
+		return nil, err
+	}
+	return a, nil
+}
+
 // Save Admin Entity
 func (ar *AdminRepository) Save(r *http.Request, a *entity.Admin) error {
 	if err := a.Validate(); err != nil {

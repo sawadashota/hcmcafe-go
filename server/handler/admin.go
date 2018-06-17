@@ -3,10 +3,9 @@ package handler
 import (
 	"net/http"
 
-	"fmt"
-
 	"github.com/sawadashota/hcmcafe/server/domain/entity"
 	"github.com/sawadashota/hcmcafe/server/domain/repository"
+	"github.com/sawadashota/hcmcafe/server/domain/service"
 )
 
 type Admin struct{}
@@ -69,17 +68,12 @@ type AuthenticateAdminResponse struct {
 }
 
 func (a *Admin) Authenticate(r *http.Request, args *AuthenticateAdminRequest, reply *AuthenticateAdminResponse) error {
-	admin, err := repository.AdminRepository.FindByEmail(r, args.Email)
+	admin, err := service.Authenticate(r, args.Email, args.Password)
 
 	if err != nil {
 		return err
 	}
 
-	if !admin.Verify(args.Password) {
-		return fmt.Errorf("Failed to authenticate\n")
-	}
-
-	admin.Token.Refresh()
 	reply.Admin = *admin
 
 	return nil
