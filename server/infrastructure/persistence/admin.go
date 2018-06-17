@@ -3,6 +3,8 @@ package persistence
 import (
 	"net/http"
 
+	"fmt"
+
 	"github.com/sawadashota/hcmcafe/server/domain/entity"
 )
 
@@ -46,6 +48,12 @@ func (ar *AdminRepository) FindByToken(r *http.Request, token string) (*entity.A
 func (ar *AdminRepository) Save(r *http.Request, a *entity.Admin) error {
 	if err := a.Validate(); err != nil {
 		return err
+	}
+
+	if e, err := exist(r, ar.kind, a.Id, "email", a.Email); err != nil {
+		return err
+	} else if e {
+		return fmt.Errorf("%s is already exist", a.Email)
 	}
 
 	return put(r, ar.kind, a)
