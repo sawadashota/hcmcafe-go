@@ -3,6 +3,8 @@ package persistence
 import (
 	"net/http"
 
+	"golang.org/x/net/context" // FIXME: Use "context" package
+
 	"fmt"
 
 	"time"
@@ -98,7 +100,7 @@ func count(r *http.Request, kind, excludeId, key string, value interface{}) (int
 		keys = append(keys, k)
 	}
 
-	if includeKey(keys, key) {
+	if includeKey(keys, excludeId) {
 		return len(keys) - 1, nil
 	}
 
@@ -124,24 +126,42 @@ func destroy(r *http.Request, kind string, id string, e Entity) error {
 
 	ctx := appengine.NewContext(r)
 
-	key := datastore.NewKey(ctx, kind, id, 0, nil)
-	err := datastore.Get(ctx, key, e)
+	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
+		key := datastore.NewKey(ctx, kind, id, 0, nil)
 
-	if err != nil {
-		log.Errorf(ctx, "could not get: %v", err)
-		return err
-	}
+		err := datastore.Get(ctx, key, e)
 
-	e.Delete()
+		if err != nil {
+			log.Errorf(ctx, "could not get: %v", err)
+			return err
+		}
 
-	_, err = datastore.Put(ctx, key, e)
+		e.Delete()
 
-	if err != nil {
-		log.Errorf(ctx, "could not put into datastore: %v", err)
-		return err
-	}
+		_, err = datastore.Put(ctx, key, e)
 
-	return nil
+		if err != nil {
+			log.Errorf(ctx, "could not put into datastore: %v", err)
+			return err
+		}
+
+		if err == nil {
+			return fmt.Errorf("stop transaction test")
+		}
+
+		e.UpdateStamp()
+
+		_, err = datastore.Put(ctx, key, e)
+
+		if err != nil {
+			log.Errorf(ctx, "could not put into datastore: %v", err)
+			return err
+		}
+
+		return nil
+	}, nil)
+
+	return err
 }
 
 func physicalDestroy(r *http.Request, kind string, id string) error {
