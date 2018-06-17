@@ -16,7 +16,7 @@ var (
 type adminRepository interface {
 	Save(r *http.Request, a *entity.Admin) error
 	Delete(r *http.Request, id string) error
-	//Get(r *http.Request) ([]*entity.Admin, error)
+	GetAll(r *http.Request, limit, page int) ([]*entity.Admin, error)
 	Find(r *http.Request, id string) (*entity.Admin, error)
 	FindByEmail(r *http.Request, email string) (*entity.Admin, error)
 	FindByToken(r *http.Request, token string) (*entity.Admin, error)

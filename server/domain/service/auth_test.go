@@ -60,6 +60,12 @@ func (tar *testAdminRepository) Save(r *http.Request, a *entity.Admin) error {
 	return nil
 }
 
+func (tar *testAdminRepository) GetAll(r *http.Request, limit, page int) ([]*entity.Admin, error) {
+	admins := []*entity.Admin{adminMock()}
+
+	return admins, nil
+}
+
 func (tar *testAdminRepository) Find(r *http.Request, id string) (*entity.Admin, error) {
 	admin := adminMock()
 

@@ -26,6 +26,53 @@ type datastoreRepository struct {
 	kind string
 }
 
+func getAll(r *http.Request, kind string, es []Entity, limit, page int) error {
+	ctx := appengine.NewContext(r)
+
+	emptyTime := time.Time{}
+	keys, err := datastore.NewQuery(kind).
+		Filter("deleted_at =", emptyTime).
+		Limit(limit).
+		Offset((page*limit)+1).
+		GetAll(ctx, es)
+
+	if err != nil {
+		log.Errorf(ctx, "could not get: %v", err)
+		return err
+	}
+
+	for i, e := range es {
+		e.SetId(keys[i].StringID())
+	}
+
+	return nil
+
+}
+
+func get(r *http.Request, kind, key string, value interface{}, es []Entity, limit, page int) error {
+	ctx := appengine.NewContext(r)
+
+	emptyTime := time.Time{}
+	keys, err := datastore.NewQuery(kind).
+		Filter(equal(key), value).
+		Filter("deleted_at =", emptyTime).
+		Limit(limit).
+		Offset((page*limit)+1).
+		GetAll(ctx, es)
+
+	if err != nil {
+		log.Errorf(ctx, "could not get: %v", err)
+		return err
+	}
+
+	for i, e := range es {
+		e.SetId(keys[i].StringID())
+	}
+
+	return nil
+
+}
+
 func find(r *http.Request, kind string, id string, e Entity) error {
 	ctx := appengine.NewContext(r)
 
@@ -46,7 +93,7 @@ func find(r *http.Request, kind string, id string, e Entity) error {
 	return nil
 }
 
-func first(r *http.Request, kind string, key string, value interface{}, e Entity) error {
+func first(r *http.Request, kind, key string, value interface{}, e Entity) error {
 	ctx := appengine.NewContext(r)
 
 	emptyTime := time.Time{}

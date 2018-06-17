@@ -17,6 +17,16 @@ func NewAdminRepository() *AdminRepository {
 }
 
 // Find by ID(Key)
+func (ar *AdminRepository) GetAll(r *http.Request, limit, page int) ([]*entity.Admin, error) {
+	as := make([]*entity.Admin, 0)
+
+	//if err := getAll(r, ar.kind, as, limit, page); err != nil {
+	//	return nil, err
+	//}
+	return as, nil
+}
+
+// Find by ID(Key)
 func (ar *AdminRepository) Find(r *http.Request, id string) (*entity.Admin, error) {
 	a := new(entity.Admin)
 
