@@ -17,7 +17,7 @@ func Authenticate(r *http.Request, email, password string) (*entity.Admin, error
 	}
 
 	if !admin.Verify(password) {
-		return nil, fmt.Errorf("Failed to authenticate\n")
+		return nil, fmt.Errorf("failed to authenticate")
 	}
 
 	admin.Token.Refresh()

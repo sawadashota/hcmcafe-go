@@ -1,6 +1,6 @@
 package entity
 
-import "golang.org/x/crypto/bcrypt"
+import "github.com/sawadashota/hcmcafe/server/lib/bcrypt"
 
 type password struct {
 	Password string `json:"-" datastore:"password"`
@@ -11,15 +11,15 @@ func NewPassword(encryptedPassword string) *password {
 }
 
 func HashPassword(rawPassword string) (*password, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(rawPassword), bcrypt.DefaultCost)
+	hash, err := bcrypt.Generate(rawPassword)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &password{string(hash)}, nil
+	return &password{hash}, nil
 }
 
 func (p *password) Verify(rawPassword string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(p.Password), []byte(rawPassword)) == nil
+	return bcrypt.Compare(p.Password, rawPassword)
 }

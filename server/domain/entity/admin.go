@@ -65,23 +65,23 @@ func CreateAdmin(firstName, lastName, email, rawPassword, bio string) *Admin {
 
 func (a *Admin) Validate() error {
 	if a.Id == "" {
-		return fmt.Errorf("ID should be present\n")
+		return fmt.Errorf("ID should be present")
 	}
 
 	if strings.Trim(a.Name.String(), " ") == "" {
-		return fmt.Errorf("Name should be present\n")
+		return fmt.Errorf("name should be present")
 	}
 
 	if a.Email == "" {
-		return fmt.Errorf("Email should be present\n")
+		return fmt.Errorf("email should be present")
 	}
 
 	if a.Password == "" {
-		return fmt.Errorf("Password should be present\n")
+		return fmt.Errorf("password should be present")
 	}
 
 	if a.Role == "" {
-		return fmt.Errorf("Role should be present\n")
+		return fmt.Errorf("role should be present")
 	}
 
 	return nil
