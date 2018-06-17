@@ -50,10 +50,8 @@ func (ar *AdminRepository) Save(r *http.Request, a *entity.Admin) error {
 		return err
 	}
 
-	if e, err := exist(r, ar.kind, a.Id, "email", a.Email); err != nil {
+	if err := ar.uniqueCheck(r, a); err != nil {
 		return err
-	} else if e {
-		return fmt.Errorf("%s is already exist", a.Email)
 	}
 
 	return put(r, ar.kind, a)
@@ -64,6 +62,28 @@ func (ar *AdminRepository) Delete(r *http.Request, id string) error {
 
 	if err := destroy(r, ar.kind, id, a); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (ar *AdminRepository) uniqueCheck(r *http.Request, a *entity.Admin) error {
+	items := []struct {
+		key   string
+		value interface{}
+	}{
+		{
+			key:   "email",
+			value: a.Email,
+		},
+	}
+
+	for _, i := range items {
+		if e, err := exist(r, ar.kind, a.Id, i.key, i.value); err != nil {
+			return err
+		} else if e {
+			return fmt.Errorf("%v is already exist", i.value)
+		}
 	}
 
 	return nil
