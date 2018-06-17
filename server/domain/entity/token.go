@@ -1,23 +1,37 @@
 package entity
 
-import "github.com/sawadashota/hcmcafe/server/lib/uuid"
+import (
+	"time"
 
-type Token struct {
-	Token string `json:"token,omitempty" datastore:"token"`
+	"github.com/sawadashota/hcmcafe/server/lib/uuid"
+)
+
+type Session struct {
+	Token     string    `json:"token,omitempty" datastore:"token"`
+	UpdatedAt time.Time `json:"updated_at" datastore:"updated_at"`
 }
 
-func NewToken(tokenStr string) *Token {
-	return &Token{tokenStr}
+func NewSession(tokenStr string, updatedAt time.Time) *Session {
+	return &Session{
+		Token:     tokenStr,
+		UpdatedAt: updatedAt,
+	}
 }
 
-func GenerateToken() *Token {
-	return &Token{uuid.Generate()}
+func GenerateSession() *Session {
+	return &Session{
+		Token:     uuid.Generate(),
+		UpdatedAt: time.Now(),
+	}
+
 }
 
-func (t *Token) Refresh() {
-	t.Token = uuid.Generate()
+func (s *Session) Refresh() {
+	s.Token = uuid.Generate()
+	s.UpdatedAt = time.Now()
 }
 
-func (t *Token) Flush() {
-	t.Token = ""
+func (s *Session) Flush() {
+	s.Token = ""
+	s.UpdatedAt = time.Now()
 }

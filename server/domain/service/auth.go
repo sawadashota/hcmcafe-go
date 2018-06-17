@@ -20,7 +20,9 @@ func Authenticate(r *http.Request, email, password string) (*entity.Admin, error
 		return nil, fmt.Errorf("failed to authenticate")
 	}
 
-	admin.Token.Refresh()
+	admin.Session.Refresh()
+
+	repository.AdminRepository.Save(r, admin)
 
 	return admin, nil
 }

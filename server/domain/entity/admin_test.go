@@ -16,7 +16,6 @@ func TestAdmin(t *testing.T) {
 		"sawada@exmaple.com",
 		"123345678",
 		"Hello",
-		"aaa",
 		now,
 		now,
 		emptyTime)

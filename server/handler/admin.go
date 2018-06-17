@@ -53,6 +53,7 @@ func (a *Admin) Create(r *http.Request, args *CreateAdminRequest, reply *CreateA
 		return err
 	}
 
+	admin.HideCredentials()
 	reply.Admin = *admin
 
 	return nil
@@ -75,6 +76,22 @@ func (a *Admin) Authenticate(r *http.Request, args *AuthenticateAdminRequest, re
 	}
 
 	reply.Admin = *admin
+
+	return nil
+}
+
+type DeleteAdminRequest struct {
+	Id string `json:"id"`
+}
+
+type DeleteAdminResponse struct{}
+
+func (a *Admin) Delete(r *http.Request, args *DeleteAdminRequest, reply *DeleteAdminResponse) error {
+	err := repository.AdminRepository.Delete(r, args.Id)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

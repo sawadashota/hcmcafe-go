@@ -39,5 +39,5 @@ func (t *timestamps) Delete() {
 
 func (t *timestamps) IsDeleted() bool {
 	emptyTime := time.Time{}
-	return t.DeletedAt != emptyTime
+	return t.DeletedAt.Unix() != emptyTime.Unix()
 }

@@ -50,3 +50,13 @@ func (ar *AdminRepository) Save(r *http.Request, a *entity.Admin) error {
 
 	return put(r, ar.kind, a)
 }
+
+func (ar *AdminRepository) Delete(r *http.Request, id string) error {
+	a := new(entity.Admin)
+
+	if err := destroy(r, ar.kind, id, a); err != nil {
+		return err
+	}
+
+	return nil
+}

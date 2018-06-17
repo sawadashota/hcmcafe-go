@@ -14,7 +14,7 @@ import (
 )
 
 func TestAuthenticate(t *testing.T) {
-	repository.AdminRepository = &TestAdminRepository{}
+	repository.AdminRepository = &testAdminRepository{}
 	r := &http.Request{}
 
 	cases := []struct {
@@ -54,13 +54,13 @@ func TestAuthenticate(t *testing.T) {
 	}
 }
 
-type TestAdminRepository struct{}
+type testAdminRepository struct{}
 
-func (tar *TestAdminRepository) Save(r *http.Request, a *entity.Admin) error {
+func (tar *testAdminRepository) Save(r *http.Request, a *entity.Admin) error {
 	return nil
 }
 
-func (tar *TestAdminRepository) Find(r *http.Request, id string) (*entity.Admin, error) {
+func (tar *testAdminRepository) Find(r *http.Request, id string) (*entity.Admin, error) {
 	admin := adminMock()
 
 	if admin.Id != id {
@@ -70,7 +70,7 @@ func (tar *TestAdminRepository) Find(r *http.Request, id string) (*entity.Admin,
 	return admin, nil
 }
 
-func (tar *TestAdminRepository) FindByEmail(r *http.Request, email string) (*entity.Admin, error) {
+func (tar *testAdminRepository) FindByEmail(r *http.Request, email string) (*entity.Admin, error) {
 	admin := adminMock()
 
 	if admin.Email != email {
@@ -80,27 +80,40 @@ func (tar *TestAdminRepository) FindByEmail(r *http.Request, email string) (*ent
 	return admin, nil
 }
 
-func (tar *TestAdminRepository) FindByToken(r *http.Request, token string) (*entity.Admin, error) {
+func (tar *testAdminRepository) FindByToken(r *http.Request, token string) (*entity.Admin, error) {
 	admin := adminMock()
 
-	if admin.Token.Token != token {
+	if admin.Session.Token != token {
 		return nil, fmt.Errorf("token: %s is not found", token)
 	}
 
 	return admin, nil
 }
 
+func (tar *testAdminRepository) Delete(r *http.Request, id string) error {
+	admin := adminMock()
+
+	if admin.Id != id {
+		return fmt.Errorf("id: %s is not found", id)
+	}
+
+	return nil
+}
+
 func adminMock() *entity.Admin {
 	now := time.Time{}
 	password, _ := bcrypt.Generate("1234")
-	return entity.NewAdmin("123",
+	a := entity.NewAdmin("123",
 		"田中",
 		"太郎",
 		"example@example.com",
 		password,
 		"自己紹介させていただきます",
-		"9876",
 		now,
 		now,
 		now)
+
+	a.Session = *entity.NewSession("9876", time.Now())
+
+	return a
 }

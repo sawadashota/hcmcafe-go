@@ -1,16 +1,19 @@
 package entity
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
-func TestGenerateToken(t *testing.T) {
+func TestGenerateSession(t *testing.T) {
 	var newToken string
 	var ts []string
 
 	for i := 0; i < 10000; i++ {
-		newToken = GenerateToken().Token
+		newToken = GenerateSession().Token
 		for _, token := range ts {
 			if token == newToken {
-				t.Errorf("Token should be unique. generated %s", newToken)
+				t.Errorf("Session should be unique. generated %s", newToken)
 			}
 		}
 
@@ -18,20 +21,28 @@ func TestGenerateToken(t *testing.T) {
 	}
 }
 
-func TestToken_Refresh(t *testing.T) {
-	token := &Token{"aaa"}
+func TestSession_Refresh(t *testing.T) {
+	token := &Session{
+		Token:     "aaa",
+		UpdatedAt: time.Now(),
+	}
+
 	token.Refresh()
 
 	if token.Token == "aaa" {
-		t.Errorf("Token value should be changed.")
+		t.Errorf("Session value should be changed.")
 	}
 }
 
-func TestToken_Flush(t *testing.T) {
-	token := &Token{"aaa"}
+func TestSession_Flush(t *testing.T) {
+	token := &Session{
+		Token:     "aaa",
+		UpdatedAt: time.Now(),
+	}
+
 	token.Flush()
 
 	if token.Token != "" {
-		t.Errorf("Token value should be empty.")
+		t.Errorf("Session value should be empty.")
 	}
 }

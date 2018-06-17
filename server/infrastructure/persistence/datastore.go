@@ -5,6 +5,8 @@ import (
 
 	"fmt"
 
+	"time"
+
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
@@ -15,6 +17,7 @@ type Entity interface {
 	SetId(id string)
 	Delete()
 	UpdateStamp()
+	IsDeleted() bool
 }
 
 type datastoreRepository struct {
@@ -32,6 +35,10 @@ func find(r *http.Request, kind string, id string, e Entity) error {
 		return err
 	}
 
+	if e.IsDeleted() {
+		return fmt.Errorf("id: %s is alredy deleted", id)
+	}
+
 	e.SetId(key.StringID())
 
 	return nil
@@ -40,7 +47,11 @@ func find(r *http.Request, kind string, id string, e Entity) error {
 func first(r *http.Request, kind string, key string, value interface{}, e Entity) error {
 	ctx := appengine.NewContext(r)
 
-	it := datastore.NewQuery(kind).Filter(equal(key), value).Run(ctx)
+	emptyTime := time.Time{}
+	it := datastore.NewQuery(kind).
+		Filter(equal(key), value).
+		Filter("deleted_at =", emptyTime).
+		Run(ctx)
 
 	k, err := it.Next(e)
 
@@ -69,9 +80,29 @@ func put(r *http.Request, kind string, e Entity) error {
 	return nil
 }
 
-//func delete(r *http.Request, kind string, id string) error {
-//	return nil
-//}
+func destroy(r *http.Request, kind string, id string, e Entity) error {
+
+	ctx := appengine.NewContext(r)
+
+	key := datastore.NewKey(ctx, kind, id, 0, nil)
+	err := datastore.Get(ctx, key, e)
+
+	if err != nil {
+		log.Errorf(ctx, "could not get: %v", err)
+		return err
+	}
+
+	e.Delete()
+
+	_, err = datastore.Put(ctx, key, e)
+
+	if err != nil {
+		log.Errorf(ctx, "could not put into datastore: %v", err)
+		return err
+	}
+
+	return nil
+}
 
 func equal(key string) string {
 	return withOperator(key, "=")

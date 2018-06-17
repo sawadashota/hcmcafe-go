@@ -14,7 +14,7 @@ type Admin struct {
 	Role  Role   `json:"role" datastore:"role"`
 	Bio   string `json:"bio" datastore:"bio,noindex"`
 	password
-	Token
+	Session Session `json:"session,omitempty" datastore:"session"`
 }
 
 type Avator struct {
@@ -38,14 +38,13 @@ func (n *Name) String() string {
 	return fmt.Sprintf("%s %s", n.FirstName, n.LastName)
 }
 
-func NewAdmin(id, firstName, lastName, email, encryptedPassword, bio, token string, createdAt, updatedAt, deletedAt time.Time) *Admin {
+func NewAdmin(id, firstName, lastName, email, encryptedPassword, bio string, createdAt, updatedAt, deletedAt time.Time) *Admin {
 	return &Admin{
 		Name:     *NewName(firstName, lastName),
 		Email:    email,
 		password: *NewPassword(encryptedPassword),
 		Role:     *NewRole(),
 		Bio:      bio,
-		Token:    *NewToken(token),
 		entity:   *NewEntity(id, createdAt, updatedAt, deletedAt),
 	}
 }
@@ -58,7 +57,7 @@ func CreateAdmin(firstName, lastName, email, rawPassword, bio string) *Admin {
 		password: *p,
 		Role:     *NewRole(),
 		Bio:      bio,
-		Token:    *GenerateToken(),
+		Session:  *GenerateSession(),
 		entity:   *GenerateEntity(),
 	}
 }
@@ -89,5 +88,5 @@ func (a *Admin) Validate() error {
 
 // HideCredentials hide important data
 func (a *Admin) HideCredentials() {
-	a.Token.Token = ""
+	a.Session = Session{}
 }
