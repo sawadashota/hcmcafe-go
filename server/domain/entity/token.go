@@ -8,7 +8,7 @@ import (
 
 type Session struct {
 	Token     string    `json:"token,omitempty" datastore:"token"`
-	UpdatedAt time.Time `json:"updated_at" datastore:"updated_at"`
+	UpdatedAt time.Time `json:"updated_at" datastore:"updated_at,noindex"`
 }
 
 func NewSession(tokenStr string, updatedAt time.Time) *Session {

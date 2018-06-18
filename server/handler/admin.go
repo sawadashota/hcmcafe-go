@@ -95,3 +95,32 @@ func (a *Admin) Delete(r *http.Request, args *DeleteAdminRequest, reply *DeleteA
 
 	return nil
 }
+
+type GetAllAdminsRequest struct {
+	Page int `json:"page"`
+}
+
+type GetAllAdminsResponse struct {
+	Page        int            `json:"page"`
+	EntirePage int            `json:"entire_page"`
+	Admins      []entity.Admin `json:"admins"`
+}
+
+const PagePerData = 20
+
+func (a *Admin) All(r *http.Request, args *GetAllAdminsRequest, reply *GetAllAdminsResponse) error {
+	admins, entirePage, err := repository.AdminRepository.GetAll(r, PagePerData, args.Page)
+
+	if err != nil {
+		return err
+	}
+
+	reply.Page = args.Page
+	reply.EntirePage = entirePage
+
+	for _, admin := range admins {
+		reply.Admins = append(reply.Admins, *admin)
+	}
+
+	return nil
+}

@@ -3,7 +3,7 @@ package entity
 import "github.com/sawadashota/hcmcafe/server/lib/bcrypt"
 
 type password struct {
-	Password string `json:"-" datastore:"password"`
+	Password string `json:"-" datastore:"password,noindex"`
 }
 
 func NewPassword(encryptedPassword string) *password {

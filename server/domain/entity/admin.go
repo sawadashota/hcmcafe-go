@@ -8,8 +8,9 @@ import (
 )
 
 type Admin struct {
+	Id Id `json:"id" datastore:"-" goon:"id"`
 	entity
-	Name  Name   `json:"name" datastore:"name"`
+	Name  Name   `json:"name" datastore:"name,noindex"`
 	Email string `json:"email" datastore:"email"`
 	Role  Role   `json:"role" datastore:"role"`
 	Bio   string `json:"bio" datastore:"bio,noindex"`
@@ -40,18 +41,20 @@ func (n *Name) String() string {
 
 func NewAdmin(id, firstName, lastName, email, encryptedPassword, bio string, createdAt, updatedAt, deletedAt time.Time) *Admin {
 	return &Admin{
+		Id:       NewId(id),
 		Name:     *NewName(firstName, lastName),
 		Email:    email,
 		password: *NewPassword(encryptedPassword),
 		Role:     *NewRole(),
 		Bio:      bio,
-		entity:   *NewEntity(id, createdAt, updatedAt, deletedAt),
+		entity:   *NewEntity(createdAt, updatedAt, deletedAt),
 	}
 }
 
 func CreateAdmin(firstName, lastName, email, rawPassword, bio string) *Admin {
 	p, _ := HashPassword(rawPassword)
 	return &Admin{
+		Id:       GenerateId(),
 		Name:     *NewName(firstName, lastName),
 		Email:    email,
 		password: *p,

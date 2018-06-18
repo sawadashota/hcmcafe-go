@@ -3,8 +3,8 @@ package entity
 import "time"
 
 type timestamps struct {
-	CreatedAt time.Time `json:"created_at" datastore:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" datastore:"updated_at"`
+	CreatedAt time.Time `json:"created_at" datastore:"created_at,noindex"`
+	UpdatedAt time.Time `json:"updated_at" datastore:"updated_at,noindex"`
 	DeletedAt time.Time `json:"-" datastore:"deleted_at"`
 }
 

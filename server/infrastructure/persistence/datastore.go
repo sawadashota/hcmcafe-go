@@ -3,57 +3,62 @@ package persistence
 import (
 	"net/http"
 
-	"golang.org/x/net/context" // FIXME: Use "context" package
-
 	"fmt"
 
 	"time"
 
+	"context"
+
+	"github.com/mjibson/goon"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 )
 
 type Entity interface {
-	GetId() string
-	SetId(id string)
 	Delete()
 	UpdateStamp()
 	IsDeleted() bool
 }
 
+type Projector func(entities interface{}) (int, error)
+
 type datastoreRepository struct {
 	kind string
 }
 
-func getAll(r *http.Request, kind string, es []Entity, limit, page int) error {
-	ctx := appengine.NewContext(r)
+func getAll(r *http.Request, kind string, limit, page int) Projector {
+	g := goon.NewGoon(r)
 
 	emptyTime := time.Time{}
-	keys, err := datastore.NewQuery(kind).
+	q := datastore.NewQuery(kind).
 		Filter("deleted_at =", emptyTime).
 		Limit(limit).
-		Offset((page*limit)+1).
-		GetAll(ctx, es)
+		Offset(pageToOffset(page, limit))
 
-	if err != nil {
-		log.Errorf(ctx, "could not get: %v", err)
-		return err
+	return func(entities interface{}) (int, error) {
+		_, err := g.GetAll(q, entities)
+
+		if err != nil {
+			errorLog(g.Context, "%v", err)
+			return 0, err
+		}
+
+		count, err := q.Count(g.Context)
+
+		if err != nil {
+			errorLog(g.Context, "%v", err)
+			return 0, err
+		}
+		return count, nil
 	}
-
-	for i, e := range es {
-		e.SetId(keys[i].StringID())
-	}
-
-	return nil
-
 }
 
 func get(r *http.Request, kind, key string, value interface{}, es []Entity, limit, page int) error {
 	ctx := appengine.NewContext(r)
 
 	emptyTime := time.Time{}
-	keys, err := datastore.NewQuery(kind).
+	_, err := datastore.NewQuery(kind).
 		Filter(equal(key), value).
 		Filter("deleted_at =", emptyTime).
 		Limit(limit).
@@ -61,26 +66,21 @@ func get(r *http.Request, kind, key string, value interface{}, es []Entity, limi
 		GetAll(ctx, es)
 
 	if err != nil {
-		log.Errorf(ctx, "could not get: %v", err)
+		errorLog(ctx, "could not get: %v", err)
 		return err
-	}
-
-	for i, e := range es {
-		e.SetId(keys[i].StringID())
 	}
 
 	return nil
 
 }
 
-func find(r *http.Request, kind string, id string, e Entity) error {
-	ctx := appengine.NewContext(r)
+func find(r *http.Request, id string, e Entity) error {
 
-	key := datastore.NewKey(ctx, kind, id, 0, nil)
-	err := datastore.Get(ctx, key, e)
+	g := goon.NewGoon(r)
+	err := g.Get(e)
 
 	if err != nil {
-		log.Errorf(ctx, "could not find: %v", err)
+		errorLog(g.Context, "could not find: %v", err)
 		return err
 	}
 
@@ -88,28 +88,25 @@ func find(r *http.Request, kind string, id string, e Entity) error {
 		return fmt.Errorf("id: %s is alredy deleted", id)
 	}
 
-	e.SetId(key.StringID())
-
 	return nil
 }
 
-func first(r *http.Request, kind, key string, value interface{}, e Entity) error {
-	ctx := appengine.NewContext(r)
+func first(r *http.Request, key string, value interface{}, e Entity) error {
+	g := goon.NewGoon(r)
 
 	emptyTime := time.Time{}
-	it := datastore.NewQuery(kind).
+	q := datastore.NewQuery(g.Kind(e)).
 		Filter(equal(key), value).
-		Filter("deleted_at =", emptyTime).
-		Run(ctx)
+		Filter("deleted_at =", emptyTime)
 
-	k, err := it.Next(e)
+	it := g.Run(q)
+
+	_, err := it.Next(e)
 
 	if err != nil {
-		log.Errorf(ctx, "could not get: %v", err)
+		errorLog(g.Context, "could not get: %v", err)
 		return err
 	}
-
-	e.SetId(k.StringID())
 
 	return nil
 }
@@ -125,26 +122,18 @@ func exist(r *http.Request, kind, excludeId, key string, value interface{}) (boo
 }
 
 func count(r *http.Request, kind, excludeId, key string, value interface{}) (int, error) {
-	keys := make([]*datastore.Key, 0)
-	ctx := appengine.NewContext(r)
+	g := goon.NewGoon(r)
 
 	emptyTime := time.Time{}
-	it := datastore.NewQuery(kind).
+	q := datastore.NewQuery(kind).
 		Filter(equal(key), value).
 		Filter("deleted_at =", emptyTime).
-		KeysOnly().
-		Run(ctx)
+		KeysOnly()
 
-	var k *datastore.Key
-	var err error
-	for err == nil {
-		k, err = it.Next(nil)
+	keys, err := g.GetAll(q, nil)
 
-		if err != nil {
-			break
-		}
-
-		keys = append(keys, k)
+	if err != nil {
+		return 0, err
 	}
 
 	if includeKey(keys, excludeId) {
@@ -154,63 +143,41 @@ func count(r *http.Request, kind, excludeId, key string, value interface{}) (int
 	return len(keys), nil
 }
 
-func put(r *http.Request, kind string, e Entity) error {
-	ctx := appengine.NewContext(r)
+func put(r *http.Request, e Entity) error {
+
 	e.UpdateStamp()
 
-	key := datastore.NewKey(ctx, kind, e.GetId(), 0, nil)
-	_, err := datastore.Put(ctx, key, e)
+	g := goon.NewGoon(r)
+	_, err := g.Put(e)
 
 	if err != nil {
-		log.Errorf(ctx, "could not put into datastore: %v", err)
+		errorLog(g.Context, "could not put into datastore: %v", err)
 		return err
 	}
 
 	return nil
 }
 
-func destroy(r *http.Request, kind string, id string, e Entity) error {
+func destroy(r *http.Request, e Entity) error {
+	g := goon.NewGoon(r)
 
-	ctx := appengine.NewContext(r)
-
-	err := datastore.RunInTransaction(ctx, func(ctx context.Context) error {
-		key := datastore.NewKey(ctx, kind, id, 0, nil)
-
-		err := datastore.Get(ctx, key, e)
+	return g.RunInTransaction(func(tg *goon.Goon) error {
+		err := g.Get(e)
 
 		if err != nil {
-			log.Errorf(ctx, "could not get: %v", err)
+			errorLog(tg.Context, "%v", err)
 			return err
 		}
 
 		e.Delete()
 
-		_, err = datastore.Put(ctx, key, e)
+		_, err = g.Put(e)
 
-		if err != nil {
-			log.Errorf(ctx, "could not put into datastore: %v", err)
-			return err
-		}
-
-		if err == nil {
-			return fmt.Errorf("stop transaction test")
-		}
-
-		e.UpdateStamp()
-
-		_, err = datastore.Put(ctx, key, e)
-
-		if err != nil {
-			log.Errorf(ctx, "could not put into datastore: %v", err)
-			return err
-		}
-
-		return nil
+		return err
 	}, nil)
-
-	return err
 }
 
+// physicalDestroy is deprecated
 func physicalDestroy(r *http.Request, kind string, id string) error {
 	ctx := appengine.NewContext(r)
 
@@ -218,7 +185,7 @@ func physicalDestroy(r *http.Request, kind string, id string) error {
 	err := datastore.Delete(ctx, key)
 
 	if err != nil {
-		log.Errorf(ctx, "could not delete: %v", err)
+		errorLog(ctx, "could not delete: %v", err)
 		return err
 	}
 
@@ -241,4 +208,12 @@ func includeKey(keys []*datastore.Key, key string) bool {
 	}
 
 	return false
+}
+
+func errorLog(ctx context.Context, format string, args ...interface{}) {
+	log.Errorf(ctx, format, args)
+}
+
+func pageToOffset(page, limit int) int {
+	return (page - 1) * limit
 }

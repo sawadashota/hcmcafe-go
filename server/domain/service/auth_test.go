@@ -60,16 +60,15 @@ func (tar *testAdminRepository) Save(r *http.Request, a *entity.Admin) error {
 	return nil
 }
 
-func (tar *testAdminRepository) GetAll(r *http.Request, limit, page int) ([]*entity.Admin, error) {
+func (tar *testAdminRepository) GetAll(r *http.Request, limit, page int) ([]*entity.Admin, int, error) {
 	admins := []*entity.Admin{adminMock()}
-
-	return admins, nil
+	return admins, 1, nil
 }
 
 func (tar *testAdminRepository) Find(r *http.Request, id string) (*entity.Admin, error) {
 	admin := adminMock()
 
-	if admin.Id != id {
+	if admin.Id.String() != id {
 		return nil, fmt.Errorf("id: %s is not found", id)
 	}
 
@@ -99,7 +98,7 @@ func (tar *testAdminRepository) FindByToken(r *http.Request, token string) (*ent
 func (tar *testAdminRepository) Delete(r *http.Request, id string) error {
 	admin := adminMock()
 
-	if admin.Id != id {
+	if admin.Id.String() != id {
 		return fmt.Errorf("id: %s is not found", id)
 	}
 

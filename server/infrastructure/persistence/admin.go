@@ -17,20 +17,19 @@ func NewAdminRepository() *AdminRepository {
 }
 
 // Find by ID(Key)
-func (ar *AdminRepository) GetAll(r *http.Request, limit, page int) ([]*entity.Admin, error) {
-	as := make([]*entity.Admin, 0)
+func (ar *AdminRepository) GetAll(r *http.Request, limit, page int) ([]*entity.Admin, int, error) {
+	var as []*entity.Admin
+	entirePage, err := getAll(r, ar.kind, limit, page)(&as)
 
-	//if err := getAll(r, ar.kind, as, limit, page); err != nil {
-	//	return nil, err
-	//}
-	return as, nil
+	return as, entirePage, err
 }
 
 // Find by ID(Key)
 func (ar *AdminRepository) Find(r *http.Request, id string) (*entity.Admin, error) {
 	a := new(entity.Admin)
+	a.Id = entity.NewId(id)
 
-	if err := find(r, ar.kind, id, a); err != nil {
+	if err := find(r, id, a); err != nil {
 		return nil, err
 	}
 	return a, nil
@@ -39,7 +38,7 @@ func (ar *AdminRepository) Find(r *http.Request, id string) (*entity.Admin, erro
 func (ar *AdminRepository) FindByEmail(r *http.Request, email string) (*entity.Admin, error) {
 	a := new(entity.Admin)
 
-	if err := first(r, ar.kind, "email", email, a); err != nil {
+	if err := first(r, "email", email, a); err != nil {
 		return nil, err
 	}
 	return a, nil
@@ -48,7 +47,7 @@ func (ar *AdminRepository) FindByEmail(r *http.Request, email string) (*entity.A
 func (ar *AdminRepository) FindByToken(r *http.Request, token string) (*entity.Admin, error) {
 	a := new(entity.Admin)
 
-	if err := first(r, ar.kind, "token", token, a); err != nil {
+	if err := first(r, "token", token, a); err != nil {
 		return nil, err
 	}
 	return a, nil
@@ -64,13 +63,14 @@ func (ar *AdminRepository) Save(r *http.Request, a *entity.Admin) error {
 		return err
 	}
 
-	return put(r, ar.kind, a)
+	return put(r, a)
 }
 
 func (ar *AdminRepository) Delete(r *http.Request, id string) error {
 	a := new(entity.Admin)
+	a.Id = entity.NewId(id)
 
-	if err := destroy(r, ar.kind, id, a); err != nil {
+	if err := destroy(r, a); err != nil {
 		return err
 	}
 
@@ -89,7 +89,7 @@ func (ar *AdminRepository) uniqueCheck(r *http.Request, a *entity.Admin) error {
 	}
 
 	for _, i := range items {
-		if e, err := exist(r, ar.kind, a.Id, i.key, i.value); err != nil {
+		if e, err := exist(r, ar.kind, a.Id.String(), i.key, i.value); err != nil {
 			return err
 		} else if e {
 			return fmt.Errorf("%v is already exist", i.value)

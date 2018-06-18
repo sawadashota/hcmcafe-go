@@ -9,3 +9,12 @@ browse:
 
 test:
 	go test -v ./...
+
+admin-create:
+	http http://localhost:9000/rpc @fixture/Admin.Create.json
+
+admin-auth:
+	http http://localhost:9000/rpc @fixture/Admin.Authenticate.json
+
+admin-all:
+	http http://localhost:9000/rpc @fixture/Admin.All.json
