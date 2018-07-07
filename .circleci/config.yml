@@ -24,26 +24,19 @@ jobs:
   #
   deploy:
     docker:
-      - image: google/cloud-sdk:203.0.0
-    working_directory: /root/go/
+      - image: google/cloud-sdk:206.0.0
+    working_directory: /root/go/src/github.com/sawadashota/hcmcafe/server
     steps:
       - attach_workspace:
-          at: .
+          at: /root/go/
       - run:
           name: Create gcloud service key file
-          working_directory: /root/go/src/github.com/sawadashota/hcmcafe/server
           command: echo $GCLOUD_SERVICE_KEY > gcloud-service-key.json
       - run:
           name: Activate gcloud project
-          working_directory: /root/go/src/github.com/sawadashota/hcmcafe/server
           command: gcloud auth activate-service-account --key-file=gcloud-service-key.json
-      - run:
-          name: Set gcloud project
-          working_directory: /root/go/src/github.com/sawadashota/hcmcafe/server
-          command: gcloud config set project $GCLOUD_PROJECT
       - deploy:
-          working_directory: /root/go/src/github.com/sawadashota/hcmcafe/server
-          command: gcloud app deploy ./app/app.yaml --project=hcm-cafe --quiet
+          command: gcloud app deploy ./app/app.yaml --project $GCLOUD_PROJECT --quiet
 
 workflows:
   version: 2
