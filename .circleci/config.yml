@@ -2,8 +2,8 @@ version: 2
 jobs:
   build-web:
     docker:
-      - image: node:10.6.0
-    working_directory: /go/src/github.com/sawadashota/hcmcafe
+      - image: &node_image node:10.6.0
+    working_directory: /go/src/github.com/sawadashota/hcmcafe/
     steps:
       - checkout
       - restore_cache:
@@ -18,23 +18,32 @@ jobs:
       - save_cache:
           key: yarn-{{ arch }}-{{ .Branch }}-{{ checksum "web/yarn.lock" }}
           paths:
-            - ./web/node_modules
+            - node_modules
       - run:
           name: Build
           working_directory: web
           command: yarn generate
       - persist_to_workspace:
-          root: /go/src/github.com/sawadashota/hcmcafe/
+          root: web
           paths:
             - .
+
+  deploy-web:
+    docker:
+      - image: *node_image
+    working_directory: /go/src/github.com/sawadashota/hcmcafe/web
+    steps:
+      - attach_workspace:
+          at: .
+      - deploy:
+          command: yarn deploy --token "$FIREBASE_TOKEN"
 
   build-go:
     docker:
       - image: circleci/golang:1.10.3
     working_directory: /go/src/github.com/sawadashota/hcmcafe
     steps:
-      - attach_workspace:
-          at: .
+      - checkout
       - run:
           name: Install dependencies
           working_directory: server
@@ -51,16 +60,13 @@ jobs:
   #
   # https://cloud.google.com/sdk/docs/#deb
   #
-  deploy:
+  deploy-go:
     docker:
       - image: google/cloud-sdk:206.0.0
     working_directory: /root/go/src/github.com/sawadashota/hcmcafe/server
     steps:
       - attach_workspace:
           at: /root/go/
-      - run:
-          name: Prepare static files
-          command: cp -r ../web/dist app/public
       - run:
           name: Create gcloud service key file
           command: echo $GCLOUD_SERVICE_KEY > gcloud-service-key.json
@@ -75,10 +81,14 @@ workflows:
   default:
     jobs:
       - build-web
-      - build-go:
+      - deploy-web:
           requires:
             - build-web
-      - deploy:
+          filters:
+            branches:
+              only: master
+      - build-go
+      - deploy-go:
           requires:
             - build-go
           filters:

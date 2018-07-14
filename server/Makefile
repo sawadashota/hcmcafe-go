@@ -18,3 +18,6 @@ admin-auth:
 
 admin-all:
 	http http://localhost:9000/rpc @fixture/Admin.All.json
+
+gcloud-set-project:
+	gcloud config set project hcm-cafe

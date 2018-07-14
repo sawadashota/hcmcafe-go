@@ -13,6 +13,7 @@
     "vuex-class": "^0.3.0"
   },
   "scripts": {
+    "deploy": "firebase deploy",
     "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@types/node": "^9.4.6",
+    "firebase-tools": "^3.19.3",
     "node-sass": "^4.9.2",
     "sass-loader": "^7.0.3",
     "ts-loader": "^3.5.0",
