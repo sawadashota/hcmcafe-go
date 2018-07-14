@@ -1,0 +1,9 @@
+@import "material-config";
+@import "mixin";
+@import url('//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons');
+
+@include pc {
+  .sp {
+    display: none !important;
+  }
+}

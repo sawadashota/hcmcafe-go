@@ -1,0 +1,12 @@
+{
+  "title": "ホーチミンおすすめカフェ",
+  "facebook": "Facebook",
+  "facebook_link": "https://www.facebook.com/hcmcafe/",
+  "nav": {
+    "home": "Home",
+    "near_me": "現在地から探す",
+    "feeling": "気分で探す",
+    "area_search": "エリアで探す",
+    "features": "特集"
+  }
+}
