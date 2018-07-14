@@ -1,11 +1,40 @@
 version: 2
 jobs:
-  build:
+  build-web:
+    docker:
+      - image: node:10.6.0
+    working_directory: /go/src/github.com/sawadashota/hcmcafe
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+           - yarn-{{ arch }}-{{ .Branch }}-{{ checksum "web/yarn.lock" }}
+           - yarn-{{ arch }}-{{ .Branch }}-
+           - yarn-{{ arch }}-
+      - run:
+          name: Install dependencies
+          working_directory: web
+          command: yarn install
+      - save_cache:
+          key: yarn-{{ arch }}-{{ .Branch }}-{{ checksum "web/yarn.lock" }}
+          paths:
+            - ./web/node_modules
+      - run:
+          name: Build
+          working_directory: web
+          command: yarn generate
+      - persist_to_workspace:
+          root: /go/src/github.com/sawadashota/hcmcafe/
+          paths:
+            - .
+
+  build-go:
     docker:
       - image: circleci/golang:1.10.3
     working_directory: /go/src/github.com/sawadashota/hcmcafe
     steps:
-      - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: Install dependencies
           working_directory: server
@@ -30,6 +59,9 @@ jobs:
       - attach_workspace:
           at: /root/go/
       - run:
+          name: Prepare static files
+          command: cp -r ../web/dist app/public
+      - run:
           name: Create gcloud service key file
           command: echo $GCLOUD_SERVICE_KEY > gcloud-service-key.json
       - run:
@@ -42,10 +74,13 @@ workflows:
   version: 2
   default:
     jobs:
-      - build
+      - build-web
+      - build-go:
+          requires:
+            - build-web
       - deploy:
           requires:
-            - build
+            - build-go
           filters:
             branches:
               only: master
