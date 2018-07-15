@@ -18,15 +18,20 @@ const host =
   process.env.HOST ||
   process.env.npm_package_config_nuxt_host ||
   "localhost"
+
+const baseUrl = process.env.BASE_URL || `http://${host}:${port}`
+const apiBaseUrl = process.env.API_BASE_URL
+const title = 'ホーチミンおすすめカフェ'
+
 module.exports = {
   mode: 'spa',
   env: {
-    baseUrl:
-      process.env.BASE_URL ||
-      `http://${host}:${port}`
+    baseUrl,
+    apiBaseUrl,
   },
   head: {
-    title: "ホーチミンおすすめカフェ",
+    title: title,
+    titleTemplate: `%s - ${title}`,
     meta: [
       { charset: "utf-8" },
       {
@@ -35,9 +40,46 @@ module.exports = {
           "width=device-width, initial-scale=1"
       },
       {
+        vmid: 'og:title',
+        property: 'og:title',
+        content: 'Top',
+        template: chunk => {
+          if (!chunk || chunk === '') {
+            return 'ホーチミンおすすめカフェ'
+          }
+          return `${chunk} - ${title}`
+        }
+      },
+      {
         hid: "description",
         name: "description",
-        content: "Nuxt.js project"
+        content: `${title}。ホーチミン在住がリピートするおすすめのカフェを紹介します。`,
+      },
+      {
+        vmid: 'og:description',
+        property: 'og:description',
+        content: `${title}。ホーチミン在住がリピートするおすすめのカフェを紹介します。`,
+        template: '%s'
+      },
+      {
+        vmid: 'og:url',
+        property: 'og:url',
+        content: baseUrl
+      },
+      {
+        vmid: 'og:type',
+        property: 'og:type',
+        content: 'website'
+      },
+      {
+        vmid: 'og:locale',
+        property: 'og:locale',
+        content: 'ja_JP'
+      },
+      {
+        vmid: 'og:image',
+        property: 'og:image',
+        content: `${baseUrl}/images/ogp.jpg`
       }
     ],
     link: [
@@ -56,6 +98,14 @@ module.exports = {
   ** Customize the progress-bar color
   */
   loading: { color: "#3B8070" },
+  loadingIndicator: {
+    name: 'chasing-dots',
+    color: '#0288D1',
+  },
+  render: {
+    gzip: {threshold: 9},
+    http2: {push: false}
+  },
   /*
   ** Build configuration
   */

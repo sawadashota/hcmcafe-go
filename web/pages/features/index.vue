@@ -15,6 +15,11 @@ import {
 
 @Component({})
 export default class extends Vue {
+  head() {
+    return {
+      title: this.$t('nav.features'),
+    }
+  }
 }
 </script>
 
