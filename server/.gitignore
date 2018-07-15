@@ -16,3 +16,5 @@
 vendor/
 
 hcm-cafe-*.json
+
+.datastore
