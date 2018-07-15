@@ -1,14 +1,9 @@
 version: 2
-
-executors:
-  node-executor:
+jobs:
+  build-web:
     docker:
       - image: &node_image node:10.6.0
     working_directory: /go/src/github.com/sawadashota/hcmcafe/
-
-jobs:
-  build-web:
-    executor: node-executor
     steps:
       - checkout
       - restore_cache:
@@ -34,7 +29,9 @@ jobs:
             - .
 
   deploy-web:
-    executor: node-executor
+    docker:
+      - image: *node_image
+    working_directory: /go/src/github.com/sawadashota/hcmcafe/web
     steps:
       - attach_workspace:
           at: .
