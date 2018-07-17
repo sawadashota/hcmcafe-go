@@ -6,4 +6,4 @@ RUN export CLOUD_SDK_REPO="cloud-sdk-stretch" && \
     apt-get update -y && apt-get install google-cloud-sdk google-cloud-sdk-app-engine-go google-cloud-sdk-datastore-emulator -y
 
 WORKDIR /go/src/github.com/sawadashota/hcmcafe/server
-EXPOSE 8080
+EXPOSE 8080 8000
