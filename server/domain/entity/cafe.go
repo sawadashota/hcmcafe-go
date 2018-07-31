@@ -4,6 +4,8 @@ import "time"
 
 // TODO: エリアとかもいれる
 type Cafe struct {
+	Id Id `json:"id" datastore:"-" goon:"id"`
+	entity
 	Name          string        `json:"name"`
 	Slug          string        `json:"slug"`
 	Address       string        `json:"address"`
@@ -14,7 +16,7 @@ type Cafe struct {
 	Facility      Facility      `json:"facility"`
 	IsPublic      bool          `json:"is_public"`
 	IsClosed      bool          `json:"is_closed"`
-	timestamps
+	AreaName      string        `json:"area_name"`
 }
 
 type Price struct {
